@@ -1,4 +1,4 @@
-![SLOme](https://raw.githubusercontent.com/CAJ2/SLOme/master/slome_slogan.png)
+![SLOme](https://raw.githubusercontent.com/CAJ2/SLOme_API/master/slome_slogan.png)
 
 ## Inspiration
 
