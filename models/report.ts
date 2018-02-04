@@ -11,6 +11,7 @@ export interface Report extends Document {
     police_report_id?: number;
     address_place_id?: number;
     location?: [Number];
+    category?: string;
 }
 
 const schema = new Schema({
@@ -44,6 +45,9 @@ const schema = new Schema({
     location: {
         type: [Number],
         index: '2d'
+    },
+    category: {
+        type: String
     }
 });
 

@@ -57,9 +57,41 @@ export class RentalController {
         const rLng: number = req.params.lng;
         const radius: number = req.params.radius;
 
-        Report.find({ location: { $geoWithin: { $center: [[rLat, rLng], radius]}}}).exec((err, data) => {
+        Report.find({ location: { $geoWithin: { $center: [[rLat, rLng], radius * 0.0000127]}}}).exec((err, data) => {
             if (err) return res.sendStatus(404);
-            return res.json(data);
+            let categoryNum = {
+                disorderly: 0,
+                noise: 0,
+                substance: 0,
+                domestic: 0,
+                misdemeanor: 0,
+                hazard: 0,
+                misc: 0
+            };
+            data.forEach(element => {
+                if (element.category == 'Disorderly') {
+                    categoryNum.disorderly++;
+                }
+                else if (element.category == 'Noise') {
+                    categoryNum.noise++;
+                }
+                else if (element.category == 'Substance') {
+                    categoryNum.substance++;
+                }
+                else if (element.category == 'Domestic Crimes') {
+                    categoryNum.domestic++;
+                }
+                else if (element.category == 'Misdemeanor') {
+                    categoryNum.misdemeanor++;
+                }
+                else if (element.category == 'Hazard') {
+                    categoryNum.hazard++;
+                }
+                else if (element.category == 'Misc') {
+                    categoryNum.misc++;
+                }
+            });
+            return res.json(categoryNum);
         });
     }
 }

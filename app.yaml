@@ -10,3 +10,6 @@ manual_scaling:
 network:
   forwarded_ports:
     - 27017/tcp
+
+skip_files:
+  - ^data$

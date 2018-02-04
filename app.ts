@@ -3,6 +3,7 @@ import * as bodyparser from 'body-parser';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as logger from 'morgan';
+import * as cors from 'cors';
 
 import { Application, Router } from 'express';
 import { Environment } from './config';
@@ -23,6 +24,7 @@ export class Slome {
         this.app.use(logger('short'));
         this.app.use(bodyparser.json());
         this.app.use(bodyparser.urlencoded({extended: true}));
+        this.app.use(cors());
 
         mongoose.connect('mongodb://christianjohansen.com:27017/slome', { user: 'slome', pass: 'slome' }, (err) => {
             if (err) {
