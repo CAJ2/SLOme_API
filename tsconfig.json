@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "mapRoot": "./dist",
+        "outDir": "./dist",
+        "baseUrl": ".",
+        "typeRoots": [
+            "node_modules/@types",
+            "typings/async.d.ts",
+            "typings/googlemaps.d.ts"
+        ]
+    },
+    "include": [
+        "**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
