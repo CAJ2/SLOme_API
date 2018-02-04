@@ -13,7 +13,7 @@ export class RentalRouter {
 
     buildRoutes() {
         this.router.get('/rental/:lat/:lng', RentalController.getRental);
-        this.router.get('/rental/reports/:lat/:lng', RentalController.getReports);
+        this.router.get('/rental/reports/:lat/:lng/:radius', RentalController.getReports);
     }
 
 }

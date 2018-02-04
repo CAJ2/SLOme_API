@@ -28,7 +28,7 @@ export class RentalController {
                         lng: rentalLng
                     }],
                     destinations: schoolCoords,
-                }).then((err: any, data: any) => {
+                }, (err: any, data: any) => {
                     if (err) return res.json(500);
 
                     console.log(data.json.rows[0].elements);
@@ -43,7 +43,6 @@ export class RentalController {
                         });
                         i++;
                     });
-                    return res.json(rentalInfo);
                 });
                 cb(rentalInfo);
             },
@@ -56,8 +55,9 @@ export class RentalController {
     static getReports(req: Request, res: Response) {
         const rLat: number = req.params.lat;
         const rLng: number = req.params.lng;
+        const radius: number = req.params.radius;
 
-        Report.find({ location: { $near: [rLat, rLng] }}).limit(10).exec((err, data) => {
+        Report.find({ location: { $geoWithin: { $center: [[rLat, rLng], radius]}}}).exec((err, data) => {
             if (err) return res.sendStatus(404);
             return res.json(data);
         });
