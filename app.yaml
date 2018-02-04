@@ -1,2 +1,12 @@
 runtime: nodejs
 env: flex
+
+env_variables:
+  GOOGLE_API: AIzaSyBCvJJHl_DEGKSYSDD3-NHJJs4r7BD9H38
+
+manual_scaling:
+  instances: 1
+
+network:
+  forwarded_ports:
+    - 27017/tcp
