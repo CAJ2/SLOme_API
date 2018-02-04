@@ -40,6 +40,7 @@
   "dependencies": {
     "@google/maps": "^0.4.5",
     "async": "^2.6.0",
+    "axios": "^0.17.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",

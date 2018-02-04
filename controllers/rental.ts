@@ -1,9 +1,12 @@
 import * as maps from '@google/maps';
 import { waterfall, forEach } from 'async';
 import { Request, Response } from 'express';
+import * as axios from 'axios';
 
 import { slome } from '../app';
 import { Report } from '../models/report';
+import { timeout } from 'typings/async';
+import { Environment } from '../config';
 
 export class RentalController {
 
@@ -18,38 +21,47 @@ export class RentalController {
             lng: -120.6579
         }];
 
-        waterfall([
-            (cb: any) => {
-                let rentalInfo: any;
+        let rentalInfo = {
+            drive_dist: '',
+            drive_time: '',
+            bike_dist: '',
+            bike_time: '',
+            walking_dist: '',
+            walking_time: '',
+            transit_dist: '',
+            transit_time: ''
+        };
 
-                slome.maps.distanceMatrix({
-                    origins: [{
-                        lat: rentalLat,
-                        lng: rentalLng
-                    }],
-                    destinations: schoolCoords,
-                }, (err: any, data: any) => {
-                    if (err) return res.json(500);
-
-                    console.log(data.json.rows[0].elements);
-
-                    let i = 0;
-                    data.json.rows[0].elements.forEach((elem: any) => {
-                        rentalInfo.schools.append({
-                            name: schoolCoords[i].name,
-                            location: data.json.destination_addresses[i],
-                            duration: elem.duration.text,
-                            distance: elem.distance.text,
-                        });
-                        i++;
-                    });
-                });
-                cb(rentalInfo);
-            },
-        ], (err, rentalInfo) => {
-            console.log(rentalInfo);
-            return res.json(rentalInfo);
+        let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
+        axios.default.get(url).then(response => {
+            rentalInfo.drive_dist = response.data.rows[0].elements[0].distance.text;
+            rentalInfo.drive_time = response.data.rows[0].elements[0].duration.text;
+        }).catch(err => {
+            return res.sendStatus(500);
         });
+        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=bicycling&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
+        axios.default.get(url).then(response => {
+            rentalInfo.bike_dist = response.data.rows[0].elements[0].distance.text;
+            rentalInfo.bike_time = response.data.rows[0].elements[0].duration.text;
+        }).catch(err => {
+            return res.sendStatus(500);
+        });
+        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=walking&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
+        axios.default.get(url).then(response => {
+            rentalInfo.walking_dist = response.data.rows[0].elements[0].distance.text;
+            rentalInfo.walking_time = response.data.rows[0].elements[0].duration.text;
+        }).catch(err => {
+            return res.sendStatus(500);
+        });
+        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=transit&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
+        axios.default.get(url).then(response => {
+            rentalInfo.transit_dist = response.data.rows[0].elements[0].distance.text;
+            rentalInfo.transit_time = response.data.rows[0].elements[0].duration.text;
+            return res.json(rentalInfo);
+        }).catch(err => {
+            return res.sendStatus(500);
+        });
+
     }
 
     static getReports(req: Request, res: Response) {

@@ -1,3 +1,5 @@
+![SLOme](https://raw.githubusercontent.com/CAJ2/SLOme/master/slome_slogan.png)
+
 ## Inspiration
 
 We were inspired by our own struggles to find the perfect off-campus housing, so we wanted to create a tool to ease this problem and help determine the most desired living location based on our preferences, such as location and criminal activity in the area.
