@@ -4,7 +4,7 @@
   "description": "SLO Hacks 2018",
   "main": "dist/app.js",
   "scripts": {
-    "start": "gulp && node dist/app.js",
+    "start": "node dist/app.js",
     "ts": "node_modules/.bin/tsc",
     "test": "node_modules/.bin/jest"
   },
