@@ -1,4 +1,3 @@
-import * as maps from '@google/maps';
 import { waterfall, forEach } from 'async';
 import { Request, Response } from 'express';
 import * as axios from 'axios';
@@ -37,7 +36,7 @@ export class RentalController {
             rentalInfo.drive_dist = response.data.rows[0].elements[0].distance.text;
             rentalInfo.drive_time = response.data.rows[0].elements[0].duration.text;
         }).catch(err => {
-            return res.sendStatus(500);
+            return res.json(err.message).sendStatus(500);
         });
         url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=bicycling&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
         axios.default.get(url).then(response => {

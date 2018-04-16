@@ -1,4 +1,3 @@
-import * as maps from '@google/maps';
 import * as bodyparser from 'body-parser';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
@@ -12,7 +11,7 @@ import { RentalRouter } from './routes/rental';
 export class Slome {
 
     public app: Application;
-    public maps: any;
+    //public maps: any;
 
     constructor(app: Application) {
         this.app = app;
@@ -33,9 +32,9 @@ export class Slome {
             }
         });
 
-        this.maps = maps.createClient({
-            key: Environment.google_api_key,
-        });
+        //this.maps = maps.createClient({
+        //    key: Environment.google_api_key,
+        //});
 
         // Build Routes
         this.app.use(new RentalRouter().router);
