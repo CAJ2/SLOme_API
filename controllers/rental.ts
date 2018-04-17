@@ -1,4 +1,4 @@
-import { waterfall, forEach } from 'async';
+import { series } from 'async';
 import { Request, Response } from 'express';
 import * as axios from 'axios';
 
@@ -20,7 +20,7 @@ export class RentalController {
             lng: -120.6579
         }];
 
-        let rentalInfo = {
+        const rentalInfo = {
             drive_dist: '',
             drive_time: '',
             bike_dist: '',
@@ -31,34 +31,60 @@ export class RentalController {
             transit_time: ''
         };
 
-        let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
-        axios.default.get(url).then(response => {
-            rentalInfo.drive_dist = response.data.rows[0].elements[0].distance.text;
-            rentalInfo.drive_time = response.data.rows[0].elements[0].duration.text;
-        }).catch(err => {
-            return res.json(err.message).sendStatus(500);
-        });
-        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=bicycling&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
-        axios.default.get(url).then(response => {
-            rentalInfo.bike_dist = response.data.rows[0].elements[0].distance.text;
-            rentalInfo.bike_time = response.data.rows[0].elements[0].duration.text;
-        }).catch(err => {
-            return res.sendStatus(500);
-        });
-        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=walking&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
-        axios.default.get(url).then(response => {
-            rentalInfo.walking_dist = response.data.rows[0].elements[0].distance.text;
-            rentalInfo.walking_time = response.data.rows[0].elements[0].duration.text;
-        }).catch(err => {
-            return res.sendStatus(500);
-        });
-        url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=transit&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key;
-        axios.default.get(url).then(response => {
-            rentalInfo.transit_dist = response.data.rows[0].elements[0].distance.text;
-            rentalInfo.transit_time = response.data.rows[0].elements[0].duration.text;
+        const urls = [
+            'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key,
+            'https://maps.googleapis.com/maps/api/distancematrix/json?mode=bicycling&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key,
+            'https://maps.googleapis.com/maps/api/distancematrix/json?mode=walking&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key,
+            'https://maps.googleapis.com/maps/api/distancematrix/json?mode=transit&units=imperial&destinations=' + schoolCoords[0].lat + ',' + schoolCoords[0].lng + '&origins=' + rentalLat + ',' + rentalLng + '&key=' + Environment.google_api_key,
+        ];
+
+        series([
+            (cb) => {
+                axios.default.get(urls[0]).then(response => {
+                    rentalInfo.drive_dist = response.data.rows[0].elements[0].distance.text;
+                    rentalInfo.drive_time = response.data.rows[0].elements[0].duration.text;
+                    cb(undefined, 'driving');
+                }).catch((err) => {
+                    cb(err, 'driving');
+                });
+            },
+            (cb) => {
+                axios.default.get(urls[1]).then(response => {
+                    rentalInfo.bike_dist = response.data.rows[0].elements[0].distance.text;
+                    rentalInfo.bike_time = response.data.rows[0].elements[0].duration.text;
+                    cb(undefined, 'biking');
+                }).catch((err) => {
+                    cb(err, 'biking');
+
+                });
+            },
+            (cb) => {
+                axios.default.get(urls[2]).then(response => {
+                    rentalInfo.walking_dist = response.data.rows[0].elements[0].distance.text;
+                    rentalInfo.walking_time = response.data.rows[0].elements[0].duration.text;
+                    cb(undefined, 'walking');
+                }).catch((err) => {
+                    cb(err, 'walking');
+
+                });
+            },
+            (cb) => {
+                axios.default.get(urls[3]).then(response => {
+                    rentalInfo.transit_dist = response.data.rows[0].elements[0].distance.text;
+                    rentalInfo.transit_time = response.data.rows[0].elements[0].duration.text;
+                    cb(undefined, 'transit');
+                }).catch((err) => {
+                    cb(err, 'transit');
+
+                });
+            },
+        ],
+        (err, results) => {
+            if (err) {
+                console.log(err);
+                return res.json(rentalInfo);
+            }
             return res.json(rentalInfo);
-        }).catch(err => {
-            return res.sendStatus(500);
         });
 
     }
@@ -70,7 +96,7 @@ export class RentalController {
 
         Report.find({ location: { $geoWithin: { $center: [[rLat, rLng], radius * 0.0000127]}}}).exec((err, data) => {
             if (err) return res.sendStatus(404);
-            let categoryNum = {
+            const categoryNum = {
                 disorderly: 0,
                 noise: 0,
                 substance: 0,
